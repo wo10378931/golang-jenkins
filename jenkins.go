@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type Auth struct {
@@ -101,8 +102,10 @@ func (jenkins *Jenkins) parseXmlResponse(resp *http.Response, body interface{}) 
 	if err != nil {
 		return
 	}
-
-	return xml.Unmarshal(data, body)
+	// xml 不支持version='1.1'
+	xmlStr := string(data)
+	xmlStr = strings.Replace(xmlStr, "version='1.1'", "version='1.0'", 1)
+	return xml.Unmarshal([]byte(xmlStr), body)
 }
 
 func (jenkins *Jenkins) parseResponse(resp *http.Response, body interface{}) (err error) {
